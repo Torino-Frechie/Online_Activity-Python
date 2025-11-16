@@ -1,0 +1,40 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="ie-edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="stylesheet" href="{{url_for('static',filename='css/w3.css') }}">
+        <title>Student Management v1.0</title>
+        <style>
+        @media (max-width: 768px) {
+            .w3-row-padding {
+                display: flex;
+                flex-direction: column;
+            }
+            .w3-third {
+                order: 1;
+                width: 100% !important;
+            }
+            .w3-twothird {
+                order: 2;
+                width: 100% !important;
+            }
+        }
+        </style>
+
+    </head>
+    <body>
+        <div class="w3-bar w3-container w3-indigo" style="position:sticky;top:0" >
+            <h4>Student Management v1.0</h4>
+        </div>
+        <div class="w3-container w3-padding">
+            {% block content %}
+            {% endblock %}
+        </div>
+        <center>
+            @copy; FRECHIE ANN TORINO, 2025
+        </center>
+    </body>
+
+</html>
