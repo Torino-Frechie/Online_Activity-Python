@@ -1,0 +1,67 @@
+from sqlite3 import connect, Row
+
+database: str = 'db/school.db'
+
+def getprocess(sql: str, vals: list) -> list:
+    conn = connect(database)
+    conn.row_factory = Row
+    cursor = conn.cursor()
+    cursor.execute(sql, vals)
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data
+
+def postprocess(sql: str, vals: list) -> bool:
+    try:
+        conn = connect(database)
+        cursor = conn.cursor()
+        cursor.execute(sql, vals)
+        conn.commit()
+        success = cursor.rowcount > 0
+    except Exception as e:
+        print(f"Error: {e}")
+        success = False
+    finally:
+        cursor.close()
+        conn.close()
+    return success
+
+def getall(table: str) -> list:
+    sql = f"SELECT * FROM `{table}`"
+    return getprocess(sql, [])
+
+def getrecord(table: str, **kwargs) -> list:
+    keys = list(kwargs.keys())
+    vals = list(kwargs.values())
+    flds = [f"`{key}`=?" for key in keys]
+    fields = " AND ".join(flds)
+    sql = f"SELECT * FROM `{table}` WHERE {fields}"
+    return getprocess(sql, vals)
+
+def addrecord(table: str, **kwargs) -> bool:
+    keys = list(kwargs.keys())
+    vals = list(kwargs.values())
+    placeholders = ",".join("?" for _ in keys)
+    fields = ",".join(f"`{key}`" for key in keys)
+    sql = f"INSERT INTO `{table}` ({fields}) VALUES ({placeholders})"
+    return postprocess(sql, vals)
+
+def deleterecord(table: str, **kwargs) -> bool:
+    keys = list(kwargs.keys())
+    vals = list(kwargs.values())
+    flds = [f"`{key}`=?" for key in keys]
+    fields = " AND ".join(flds)
+    sql = f"DELETE FROM `{table}` WHERE {fields}"
+    return postprocess(sql, vals)
+
+def updaterecord(table: str, **kwargs) -> bool:
+    keys = list(kwargs.keys())
+    vals = list(kwargs.values())
+    primary_key = keys[0]
+    primary_val = vals[0]
+    set_fields = [f"`{keys[i]}`=?" for i in range(1, len(keys))]
+    update_vals = vals[1:]
+    sql = f"UPDATE `{table}` SET {', '.join(set_fields)} WHERE `{primary_key}`=?"
+    return postprocess(sql, update_vals + [primary_val])
+
